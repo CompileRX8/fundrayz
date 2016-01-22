@@ -1,0 +1,13 @@
+New log file opened at Thu Dec 31 13:58:00 CST 2015 by 32177@engineering.highley.net
+Taking next connection to: 37180
+New client attempting to connect on port: 40608-37180
+  Address = /10.0.0.13:37180
+This client on port 40608 has uuid fab4332e-8320-4375-b1ad-25f352303402 configName play-fork-run humanReadableName Play Fork Run protocolVersion 1 featureTags Vector()
+Connected Clients: play-fork-run-fab4332e-8320-4375-b1ad-25f352303402
+Taking next connection to: 37180
+Checking to see if clients are empty...
+No non-daemon clients connected after 3 min. Shutting down.
+Server socket thread exiting.
+0 clients open, will close them...
+All client sockets have been closed.
+Closing the 32177@engineering.highley.net logs at Thu Dec 31 14:01:03 CST 2015, goodbye.
