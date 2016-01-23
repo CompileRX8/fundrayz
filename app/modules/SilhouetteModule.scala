@@ -111,7 +111,7 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
 
     SocialProviderRegistry(Seq(
       googleProvider,
-      facebookProvider,
+      facebookProvider //,
 //      twitterProvider,
 //      instagramProvider,
 //      yahooProvider,
@@ -119,29 +119,29 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
 //      foursquareProvider,
 //      vkProvider,
 //      xingProvider,
-      clefProvider
+//      clefProvider
     ))
   }
 
-  /**
-    * Provides the cookie authenticator service.
-    *
-    * @param fingerprintGenerator The fingerprint generator implementation.
-    * @param idGenerator The ID generator implementation.
-    * @param configuration The Play configuration.
-    * @param clock The clock instance.
-    * @return The authenticator service.
-    */
-  @Provides
-  def provideCookieAuthenticatorService(
-                                   fingerprintGenerator: FingerprintGenerator,
-                                   idGenerator: IDGenerator,
-                                   configuration: Configuration,
-                                   clock: Clock): AuthenticatorService[CookieAuthenticator] = {
-
-    val config = configuration.underlying.as[CookieAuthenticatorSettings]("silhouette.authenticator.cookie")
-    new CookieAuthenticatorService(config, None, fingerprintGenerator, idGenerator, clock)
-  }
+//  /**
+//    * Provides the cookie authenticator service.
+//    *
+//    * @param fingerprintGenerator The fingerprint generator implementation.
+//    * @param idGenerator The ID generator implementation.
+//    * @param configuration The Play configuration.
+//    * @param clock The clock instance.
+//    * @return The authenticator service.
+//    */
+//  @Provides
+//  def provideCookieAuthenticatorService(
+//                                   fingerprintGenerator: FingerprintGenerator,
+//                                   idGenerator: IDGenerator,
+//                                   configuration: Configuration,
+//                                   clock: Clock): AuthenticatorService[CookieAuthenticator] = {
+//
+//    val config = configuration.underlying.as[CookieAuthenticatorSettings]("silhouette.authenticator.cookie")
+//    new CookieAuthenticatorService(config, None, fingerprintGenerator, idGenerator, clock)
+//  }
 
   /**
     * Provides the jwt authenticator service.

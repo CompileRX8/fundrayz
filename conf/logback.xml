@@ -15,7 +15,7 @@
     <logger name="play" level="INFO"/>
     <logger name="application" level="DEBUG"/>
     <logger name="com.mohiva" level="ERROR"/>
-    <logger name="com.mohiva.play.silhouette.api.Silhouette" level="INFO"/>
+    <logger name="com.mohiva.play.silhouette.api.Silhouette" level="DEBUG"/>
 
     <root level="ERROR">
         <appender-ref ref="STDOUT"/>

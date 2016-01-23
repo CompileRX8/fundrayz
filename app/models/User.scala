@@ -2,12 +2,7 @@ package models
 
 import java.util.UUID
 
-import com.mohiva.play.silhouette.api.{Authorization, Identity, LoginInfo}
-import com.mohiva.play.silhouette.impl.authenticators.CookieAuthenticator
-import play.api.i18n.Messages
-import play.api.mvc.Request
-
-import scala.concurrent.Future
+import com.mohiva.play.silhouette.api.{Identity, LoginInfo}
 
 /**
   * The user object.

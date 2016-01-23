@@ -7,7 +7,7 @@ import com.mohiva.play.silhouette.api._
 import com.mohiva.play.silhouette.api.exceptions.ProviderException
 import com.mohiva.play.silhouette.api.repositories.AuthInfoRepository
 import com.mohiva.play.silhouette.api.util.{Clock, Credentials}
-import com.mohiva.play.silhouette.impl.authenticators.{JWTAuthenticator, CookieAuthenticator}
+import com.mohiva.play.silhouette.impl.authenticators.JWTAuthenticator
 import com.mohiva.play.silhouette.impl.exceptions.IdentityNotFoundException
 import com.mohiva.play.silhouette.impl.providers._
 import forms.SignInForm
@@ -60,15 +60,14 @@ class CredentialsAuthController @Inject()(
           val result = Redirect(routes.ApplicationController.index())
           userService.retrieve(loginInfo).flatMap {
             case Some(user) =>
-//              val c = configuration.underlying
+              val c = configuration.underlying
               env.authenticatorService.create(loginInfo).map {
                 case authenticator if data.rememberMe =>
-//                  authenticator.copy(
-//                    expirationDateTime = clock.now + c.as[FiniteDuration]("silhouette.authenticator.cookie.rememberMe.authenticatorExpiry"),
-//                    idleTimeout = c.getAs[FiniteDuration]("silhouette.authenticator.cookie.rememberMe.authenticatorIdleTimeout"),
+                  authenticator.copy(
+                    expirationDateTime = clock.now + c.as[FiniteDuration]("silhouette.authenticator.cookie.rememberMe.authenticatorExpiry"),
+                    idleTimeout = c.getAs[FiniteDuration]("silhouette.authenticator.cookie.rememberMe.authenticatorIdleTimeout") //,
 //                    cookieMaxAge = c.getAs[FiniteDuration]("silhouette.authenticator.cookie.rememberMe.cookieMaxAge")
-//                  )
-                  authenticator
+                  )
                   // This is where to add custom claims--org and event roles?
                 case authenticator => authenticator
               }.flatMap { authenticator =>
