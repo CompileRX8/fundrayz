@@ -124,7 +124,7 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
   }
 
   /**
-    * Provides the authenticator service.
+    * Provides the cookie authenticator service.
     *
     * @param fingerprintGenerator The fingerprint generator implementation.
     * @param idGenerator The ID generator implementation.
@@ -133,15 +133,33 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
     * @return The authenticator service.
     */
   @Provides
-  def provideAuthenticatorService(
+  def provideCookieAuthenticatorService(
+                                   fingerprintGenerator: FingerprintGenerator,
+                                   idGenerator: IDGenerator,
+                                   configuration: Configuration,
+                                   clock: Clock): AuthenticatorService[CookieAuthenticator] = {
+
+    val config = configuration.underlying.as[CookieAuthenticatorSettings]("silhouette.authenticator.cookie")
+    new CookieAuthenticatorService(config, None, fingerprintGenerator, idGenerator, clock)
+  }
+
+  /**
+    * Provides the jwt authenticator service.
+    *
+    * @param fingerprintGenerator The fingerprint generator implementation.
+    * @param idGenerator The ID generator implementation.
+    * @param configuration The Play configuration.
+    * @param clock The clock instance.
+    * @return The authenticator service.
+    */
+  @Provides
+  def provideJWTAuthenticatorService(
                                    fingerprintGenerator: FingerprintGenerator,
                                    idGenerator: IDGenerator,
                                    configuration: Configuration,
                                    clock: Clock): AuthenticatorService[JWTAuthenticator] = {
 
-//    val config = configuration.underlying.as[CookieAuthenticatorSettings]("silhouette.authenticator")
-//    new CookieAuthenticatorService(config, None, fingerprintGenerator, idGenerator, clock)
-    val config = configuration.underlying.as[JWTAuthenticatorSettings]("silhouette.authenticator")
+    val config = configuration.underlying.as[JWTAuthenticatorSettings]("silhouette.authenticator.jwt")
     new JWTAuthenticatorService(config, None, idGenerator, clock)
   }
 
