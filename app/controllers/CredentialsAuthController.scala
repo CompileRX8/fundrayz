@@ -64,9 +64,9 @@ class CredentialsAuthController @Inject()(
               env.authenticatorService.create(loginInfo).map {
                 case authenticator if data.rememberMe =>
 //                  authenticator.copy(
-//                    expirationDateTime = clock.now + c.as[FiniteDuration]("silhouette.authenticator.rememberMe.authenticatorExpiry"),
-//                    idleTimeout = c.getAs[FiniteDuration]("silhouette.authenticator.rememberMe.authenticatorIdleTimeout"),
-//                    cookieMaxAge = c.getAs[FiniteDuration]("silhouette.authenticator.rememberMe.cookieMaxAge")
+//                    expirationDateTime = clock.now + c.as[FiniteDuration]("silhouette.authenticator.cookie.rememberMe.authenticatorExpiry"),
+//                    idleTimeout = c.getAs[FiniteDuration]("silhouette.authenticator.cookie.rememberMe.authenticatorIdleTimeout"),
+//                    cookieMaxAge = c.getAs[FiniteDuration]("silhouette.authenticator.cookie.rememberMe.cookieMaxAge")
 //                  )
                   authenticator
                   // This is where to add custom claims--org and event roles?
