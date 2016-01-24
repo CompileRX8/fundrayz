@@ -64,24 +64,20 @@ var myApp = angular.module('myApp', []);
 //
 //});
 
-myApp.factory('authInterceptor', function ($rootScope, $q, $window) {
+myApp.factory('authInterceptor', ['$rootScope', '$q', '$window', '$log', function ($rootScope, $q, $window, $log) {
     return {
         'request': function (config) {
             config.headers = config.headers || {};
             if ($window.sessionStorage.token) {
-                if($window.console) {
-                    $window.console.log('Adding bearer token: ' + $window.sessionStorage.token);
-                }
+                $log.info('Adding bearer token: ' + $window.sessionStorage.token);
                 config.headers.Authorization = 'Bearer ' + $window.sessionStorage.token;
             }
             return config;
         },
         'response': function(response) {
             var authToken = response.headers['X-Auth-Token'];
-            if($window.console) {
-                $window.console.log('X-Auth-Token: ' + authToken);
-                $window.console.log(response);
-            }
+            $log.info('X-Auth-Token: ' + authToken);
+            $log.info(response);
             $window.sessionStorage.token = authToken;
         //},
         //'responseError': function (rejection) {
@@ -91,7 +87,7 @@ myApp.factory('authInterceptor', function ($rootScope, $q, $window) {
         //    return $q.reject(rejection);
         }
     };
-});
+}]);
 
 myApp.config(function ($httpProvider) {
     $httpProvider.interceptors.push('authInterceptor');
