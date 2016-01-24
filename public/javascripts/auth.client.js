@@ -64,7 +64,7 @@ var myApp = angular.module('myApp', []);
 //
 //});
 
-myApp.provider('authInterceptor', function ($rootScope, $q, $window, $log) {
+myApp.factory('authInterceptor', ['$q', '$window', '$log', function ($q, $window, $log) {
     return {
         'request': function (config) {
             config.headers = config.headers || {};
@@ -75,7 +75,7 @@ myApp.provider('authInterceptor', function ($rootScope, $q, $window, $log) {
             return config;
         },
         'response': function(response) {
-            var authToken = response.headers['X-Auth-Token'];
+            var authToken = response.config.headers['X-Auth-Token'];
             $log.log('X-Auth-Token: ' + authToken);
             $log.log(response);
             $window.sessionStorage.token = authToken;
@@ -88,8 +88,8 @@ myApp.provider('authInterceptor', function ($rootScope, $q, $window, $log) {
         //    return $q.reject(rejection);
         }
     };
-});
+}]);
 
-myApp.config(function ($httpProvider) {
+myApp.config(['$httpProvider', function ($httpProvider) {
     $httpProvider.interceptors.push('authInterceptor');
-});
+}]);
