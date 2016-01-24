@@ -64,7 +64,7 @@ var myApp = angular.module('myApp', []);
 //
 //});
 
-myApp.factory('authInterceptor', function ($rootScope, $q, $window, $log) {
+myApp.provider('authInterceptor', function ($rootScope, $q, $window, $log) {
     return {
         'request': function (config) {
             config.headers = config.headers || {};
