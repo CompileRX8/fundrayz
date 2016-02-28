@@ -2,7 +2,7 @@ name := """fundrayz"""
 
 version := "1.0-SNAPSHOT"
 
-lazy val root = (project in file(".")).enablePlugins(PlayScala)
+lazy val root = (project in file(".")).enablePlugins(PlayScala).enablePlugins(SbtWeb)
 
 scalaVersion := "2.11.7"
 
@@ -15,11 +15,12 @@ libraryDependencies ++= Seq(
   "org.postgresql" % "postgresql" % "9.4.1207",
   "com.typesafe.play" %% "anorm" % "2.5.0",
   "com.mohiva" %% "play-silhouette" % "3.0.4",
-  "org.webjars" %% "webjars-play" % "2.4.0",
-  "org.webjars" % "angularjs" % "1.4.8",
-  "net.codingwell" %% "scala-guice" % "4.0.0",
+  "org.webjars" %% "webjars-play" % "2.4.0-2",
+  "org.webjars" % "angularjs" % "1.4.9",
+  "org.webjars" % "bootstrap" % "3.3.5",
+  "net.codingwell" %% "scala-guice" % "4.0.1",
   "net.ceedubs" %% "ficus" % "1.1.2",
-  "com.adrianhurt" %% "play-bootstrap3" % "0.4.4-P24",
+  "com.adrianhurt" %% "play-bootstrap3" % "0.4.5-P24",
   "com.mohiva" %% "play-silhouette-testkit" % "3.0.4" % Test,
   specs2 % Test
 )
@@ -44,5 +45,17 @@ scalacOptions ++= Seq(
   "-Ywarn-nullary-override", // Warn when non-nullary overrides nullary, e.g. def foo() over def foo.
   "-Ywarn-numeric-widen" // Warn when numerics are widened.
 )
+
+CoffeeScriptKeys.bare := true
+
+LessKeys.strictMath in Assets := true
+
+includeFilter in (Assets, LessKeys.less) := "*.less"
+
+herokuAppName in Compile := "fundrayz"
+
+pipelineStages := Seq(rjs, digest, gzip)
+
+RjsKeys.mainModule := "app"
 
 //fork in run := true
