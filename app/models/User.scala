@@ -25,16 +25,24 @@ case class User(
                  avatarURL: Option[String]
                ) extends Identity
 
-//private case class UserRole(name: String)
-//case object AdminRole extends UserRole("admin")
-//case object UserRole extends UserRole("user")
-//case object SuperUserRole extends UserRole("superuser")
-//
-//private case class UserPermission(name: String)
-//case object CreatePermission extends UserPermission("create")
-//case object UpdatePermission extends UserPermission("update")
-//case object ReadPermission extends UserPermission("read")
-//
+class UserRole(val name: String)
+trait OrgRole
+trait CampaignRole
+trait EventRole
+case object OrgAdmin extends UserRole("orgadmin") with OrgRole
+case object CampaignAdmin extends UserRole("campaignadmin") with CampaignRole
+case object EventAdmin extends UserRole("eventadmin") with EventRole
+case object PaymentAdmin extends UserRole("paymentadmin") with OrgRole
+case object SuperAdmin extends UserRole("superadmin")
+
+class Permission(val name: String)
+case object CreateCampaign extends Permission("createcampaign")
+case object UpdateCampaign extends Permission("updatecampaign")
+case object CreateEvent extends Permission("createevent")
+case object UpdateEvent extends Permission("updateevent")
+case object CreateItem extends Permission("createitem")
+case object UpdateItem extends Permission("updateitem")
+
 //case object NameAuthz extends Authorization[User, CookieAuthenticator] {
 //  override def isAuthorized[B](user: User, authenticator: CookieAuthenticator)(implicit request: Request[B], messages: Messages) = {
 //    Future.successful(user.firstName.contains("Ryan"))

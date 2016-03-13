@@ -28,12 +28,17 @@ define [],
             JSON.parse($window.atob(base64))
     ]
 
-    mod.factory 'userService', ['$http', '$q', '$window', '$log', 'authService',
-      ($http, $q, $window, $log, authService) ->
+    mod.factory 'userService', ['$http', '$q', '$window', '$log', '$location', 'authService',
+      ($http, $q, $window, $log, $location, authService) ->
         new class UserService
           loginUser: (credentials) ->
             $http.post('/authenticate/credentials', credentials).then (response) ->
               $log.log 'UserService returned from login post: ' + response.data
+              token = response.headers('X-Auth-Token')
+              if token
+                $log.log 'User login token: ' + token
+                authService.saveToken(token)
+                $location.url('/')
               response.data
 
           logoutUser: (token) ->
@@ -51,7 +56,7 @@ define [],
             token = authService.getToken()
             if token
               $log.log 'Adding bearer token: ' + token
-              config.headers.Authorization = 'Bearer ' + token
+              config.headers['Authorization'] = 'Bearer ' + token
             config
 
           requestError: (x) ->
@@ -60,14 +65,14 @@ define [],
 
           response: (resp) ->
             $log.log 'authInterceptor response:' + resp.toString()
-            token = resp.config.headers['X-Auth-Token']
+            token = resp.headers('X-Auth-Token')
             if token
               $log.log 'X-Auth-Token: ' + token
               authService.saveToken(token)
             resp
 
           responseError: (x) ->
-            $log.log 'authInterceptor responseError:' + x.toString()
+            $log.log 'authInterceptor responseError:' + x.toString() + " status: " + x.status
             $q.reject x
         }
     ]

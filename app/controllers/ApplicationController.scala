@@ -8,6 +8,8 @@ import com.mohiva.play.silhouette.impl.providers.SocialProviderRegistry
 import forms._
 import models.User
 import play.api.i18n.MessagesApi
+import play.api.mvc
+import play.api.mvc.Results
 
 import scala.concurrent.Future
 
@@ -40,7 +42,7 @@ class ApplicationController @Inject()(
     */
   def signIn = UserAwareAction.async { implicit request =>
     request.identity match {
-      case Some(user) => Future.successful(Redirect(routes.ApplicationController.index()).withHeaders("X-Auth-Token" -> request.headers("X-Auth-Token")))
+      case Some(user) => Future.successful(Redirect(routes.ApplicationController.index()))
       case None => Future.successful(Ok(views.html.signIn(SignInForm.form, socialProviderRegistry)))
     }
   }

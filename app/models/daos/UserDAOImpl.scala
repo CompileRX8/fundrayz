@@ -103,8 +103,9 @@ class UserDAOImpl extends UserDAO {
         'avatar_url -> user.avatarURL
       ).executeUpdate()
     }
-    user
-  }
+  } flatMap { _ =>
+    find(user.userID)
+  } map { _.get }
 }
 
 object UserDAOImpl {

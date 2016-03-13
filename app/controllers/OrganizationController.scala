@@ -1,5 +1,6 @@
 package controllers
 
+import java.time.{LocalDate, Duration}
 import javax.inject.Inject
 
 import com.mohiva.play.silhouette.api.{Environment, Silhouette}
@@ -15,7 +16,15 @@ class OrganizationController @Inject()(val messagesApi: MessagesApi,
     Ok
   }
 
-  def createCampaign(orgId: Int, name: String) = SecuredAction { implicit request =>
+  def getAll() = SecuredAction { implicit request =>
+    Ok
+  }
+
+  def createCampaign(orgId: Int, name: String, startDate: LocalDate, duration: Duration) = SecuredAction { implicit request =>
+    Ok
+  }
+
+  def getCampaigns(orgId: Int) = SecuredAction { implicit request =>
     Ok
   }
 

@@ -3,15 +3,15 @@ package models
 /**
   * Created by ryan on 12/24/15.
   */
-case class Organization(id: Option[Int], name: String)
+case class Organization(id: Option[Long], name: String)
 
 object Organization {
-  private val nextOrgId: Iterator[Int] = new Iterator[Int] {
-    private var n = 1
+  private val nextOrgId: Iterator[Long] = new Iterator[Long] {
+    private var n = 1L
 
     override def hasNext: Boolean = true
 
-    override def next: Int = {
+    override def next: Long = {
       val i = n
       n += 1
       i
@@ -26,11 +26,13 @@ object Organization {
     org
   }
 
-  def get(id: Int): Option[Organization] = {
+  def get(id: Long): Option[Organization] = {
     orgs find {
       _.id.get == id
     }
   }
+
+  def getOrganizations: List[Organization] = orgs
 
   def update(org: Organization): Option[Organization] = {
     org.id flatMap { id =>

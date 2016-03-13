@@ -57,7 +57,7 @@ class CredentialsAuthController @Inject()(
       data => {
         val credentials = Credentials(data.email, data.password)
         credentialsProvider.authenticate(credentials).flatMap { loginInfo =>
-          val result = Redirect(routes.ApplicationController.index())
+          val result = Ok // Redirect(routes.ApplicationController.index())
           userService.retrieve(loginInfo).flatMap {
             case Some(user) =>
               val c = configuration.underlying
@@ -80,7 +80,8 @@ class CredentialsAuthController @Inject()(
           }
         }.recover {
           case e: ProviderException =>
-            Redirect(routes.ApplicationController.signIn()).flashing("error" -> Messages("invalid.credentials"))
+            BadRequest(Messages("invalid.credentials"))
+//            Redirect(routes.ApplicationController.signIn()).flashing("error" -> Messages("invalid.credentials"))
         }
       }
     )
