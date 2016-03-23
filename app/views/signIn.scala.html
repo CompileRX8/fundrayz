@@ -13,14 +13,14 @@
     <div ng-controller="SignInCtrl">
         <fieldset class="col-md-6 col-md-offset-3">
             <legend>@Messages("sign.in.credentials")</legend>
-            @helper.form(action = routes.CredentialsAuthController.authenticate(), 'name -> "loginForm") {
+            @helper.form(action = routes.CredentialsAuthController.authenticate(), 'name -> "loginForm", Symbol("ng-submit") -> "login()") {
                 @helper.CSRF.formField
                 @b3.email(signInForm("email"), Symbol("ng-model") -> "credentials.email", '_hiddenLabel -> Messages("email"), 'placeholder -> Messages("email"), 'class -> "form-control input-lg")
                 @b3.password(signInForm("password"), Symbol("ng-model") -> "credentials.password", '_hiddenLabel -> Messages("password"), 'placeholder -> Messages("password"), 'class -> "form-control input-lg")
                 @b3.checkbox(signInForm("rememberMe"), Symbol("ng-model") -> "credentials.rememberMe", '_text -> Messages("remember.me"), 'checked -> true)
                 <div class="form-group">
                     <div>
-                        <button id="submit" value="submit" ng-click="login()" class="btn btn-lg btn-primary btn-block">@Messages("sign.in")</button>
+                        <button id="submit" value="submit" type="submit" class="btn btn-lg btn-primary btn-block">@Messages("sign.in")</button>
                     </div>
                 </div>
             }

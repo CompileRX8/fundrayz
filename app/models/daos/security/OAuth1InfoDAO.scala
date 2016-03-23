@@ -1,14 +1,13 @@
-package models.daos
+package models.daos.security
 
+import anorm.SqlParser._
+import anorm._
 import com.mohiva.play.silhouette.api.LoginInfo
 import com.mohiva.play.silhouette.impl.daos.DelegableAuthInfoDAO
 import com.mohiva.play.silhouette.impl.providers.OAuth1Info
-import play.api.libs.concurrent.Execution.Implicits._
 import play.api.Play.current
-
-import anorm._
-import anorm.SqlParser._
 import play.api.db.DB
+import play.api.libs.concurrent.Execution.Implicits._
 
 import scala.concurrent.Future
 
@@ -18,7 +17,7 @@ import scala.concurrent.Future
 class OAuth1InfoDAO extends DelegableAuthInfoDAO[OAuth1Info] {
 
   import OAuth1InfoDAO._
-  import UserDAOImpl.{loginInfoSelectIDByProviderIDAndProviderKeySQL, loginInfoIDParser}
+  import UserDAOImpl.{loginInfoIDParser, loginInfoSelectIDByProviderIDAndProviderKeySQL}
 
   /**
     * Finds the auth info which is linked with the specified login info.

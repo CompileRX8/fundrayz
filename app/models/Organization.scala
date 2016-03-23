@@ -1,61 +1,20 @@
 package models
 
+import java.time.{LocalDateTime, Duration}
+
 /**
   * Created by ryan on 12/24/15.
   */
 case class Organization(id: Option[Long], name: String)
 
-object Organization {
-  private val nextOrgId: Iterator[Long] = new Iterator[Long] {
-    private var n = 1L
+case class Campaign(id: Option[Long], org: Organization, name: String, startDate: LocalDateTime, duration: Duration)
 
-    override def hasNext: Boolean = true
+case class Event(id: Option[Long], campaign: Campaign, name: String, startDate: LocalDateTime, duration: Duration)
 
-    override def next: Long = {
-      val i = n
-      n += 1
-      i
-    }
-  }
+case class WorkSchedule(id: Option[Long], event: Event, user: User, startDate: LocalDateTime, duration: Duration)
 
-  private var orgs: List[Organization] = List()
+case class Contact(id: Option[Long], userInfo: Option[User], orgs: List[Organization] = List())
 
-  def create(name: String): Organization = {
-    val org = Organization(Some(nextOrgId.next), name)
-    orgs :+= org
-    org
-  }
+case class Payment(id: Option[Long], payer: User, cashier: User, amount: BigDecimal, description: String)
 
-  def get(id: Long): Option[Organization] = {
-    orgs find {
-      _.id.get == id
-    }
-  }
-
-  def getOrganizations: List[Organization] = orgs
-
-  def update(org: Organization): Option[Organization] = {
-    org.id flatMap { id =>
-      get(id) map { foundOrg =>
-        val newOrg = Organization(foundOrg.id, org.name)
-        val splitOrgs = orgs splitAt (orgs indexWhere {
-          _.id.get == id
-        })
-        orgs = (splitOrgs._1 :+ newOrg) ++ splitOrgs._2.tail
-        newOrg
-      }
-    }
-  }
-
-  def delete(org: Organization): Option[Organization] = {
-    org.id flatMap { id =>
-      get(id) map { foundOrg =>
-        val splitOrgs = orgs splitAt (orgs indexWhere {
-          _.id.get == id
-        })
-        orgs = splitOrgs._1 ++ splitOrgs._2.tail
-        foundOrg
-      }
-    }
-  }
-}
+case class Purchase(id: Option[Long], item: Item, purchaser: User, cashier: User, amount: BigDecimal)

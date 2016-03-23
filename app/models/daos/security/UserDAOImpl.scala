@@ -1,17 +1,16 @@
-package models.daos
+package models.daos.security
 
 import java.util.UUID
 
+import anorm.SqlParser._
+import anorm._
 import com.mohiva.play.silhouette.api.LoginInfo
 import models.User
+import play.api.Play.current
+import play.api.db.DB
+import play.api.libs.concurrent.Execution.Implicits._
 
 import scala.concurrent.Future
-import play.api.libs.concurrent.Execution.Implicits._
-import play.api.Play.current
-
-import anorm._
-import anorm.SqlParser._
-import play.api.db.DB
 
 /**
   * Data access for User objects.
