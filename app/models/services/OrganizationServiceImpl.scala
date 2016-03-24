@@ -4,7 +4,7 @@ import javax.inject.Inject
 
 import models._
 import models.daos.organization.{PaymentDAO, PurchaseDAO}
-import models.daos.ModelDAO
+import models.daos.AbstractModelDAO
 
 import scala.concurrent.Future
 
@@ -12,11 +12,11 @@ import scala.concurrent.Future
   * Created by ryan on 3/16/16.
   */
 class OrganizationServiceImpl @Inject()(
-                                         campaignDAO: ModelDAO[Campaign, Organization],
-                                         eventDAO: ModelDAO[Event, Campaign],
-                                         workScheduleDAO: ModelDAO[WorkSchedule, Event],
-                                         contactDAO: ModelDAO[Contact, Organization],
-                                         organizationDAO: ModelDAO[Organization, Organization],
+                                         campaignDAO: AbstractModelDAO[Campaign, Organization],
+                                         eventDAO: AbstractModelDAO[Event, Campaign],
+                                         workScheduleDAO: AbstractModelDAO[WorkSchedule, Event],
+                                         contactDAO: AbstractModelDAO[Contact, Organization],
+                                         organizationDAO: AbstractModelDAO[Organization, Organization],
                                          paymentDAO: PaymentDAO,
                                          purchaseDAO: PurchaseDAO
                                        ) extends OrganizationService {

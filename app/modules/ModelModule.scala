@@ -13,11 +13,11 @@ import net.codingwell.scalaguice.ScalaModule
 class ModelModule extends AbstractModule with ScalaModule {
   override def configure(): Unit = {
     bind[OrganizationService].to[OrganizationServiceImpl]
-    bind[ModelDAO[Organization, Organization]].to[OrganizationDAOImpl]
-    bind[ModelDAO[Campaign, Organization]].to[CampaignDAOImpl]
-    bind[ModelDAO[Event, Campaign]].to[EventDAOImpl]
-    bind[ModelDAO[WorkSchedule, Event]].to[WorkScheduleDAOImpl]
-    bind[ModelDAO[Contact, Organization]].to[ContactDAOImpl]
+    bind[AbstractModelDAO[Organization, Organization]].to[OrganizationDAOImpl]
+    bind[AbstractModelDAO[Campaign, Organization]].to[CampaignDAOImpl]
+    bind[AbstractModelDAO[Event, Campaign]].to[EventDAOImpl]
+    bind[AbstractModelDAO[WorkSchedule, Event]].to[WorkScheduleDAOImpl]
+    bind[AbstractModelDAO[Contact, Organization]].to[ContactDAOImpl]
     bind[PaymentDAO].to[PaymentDAOImpl]
     bind[PurchaseDAO].to[PurchaseDAOImpl]
   }

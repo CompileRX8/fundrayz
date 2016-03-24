@@ -1,6 +1,6 @@
 package models.daos.organization
 
-import models.daos.ModelDAO
+import models.daos.{AbstractModelDAO, ModelDAO}
 import models.{Contact, Organization, Payment}
 
 import scala.concurrent.Future

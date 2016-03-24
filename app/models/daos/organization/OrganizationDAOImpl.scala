@@ -1,9 +1,9 @@
 package models.daos.organization
 
 import anorm.SqlParser._
-import anorm._
+import anorm.{NamedParameter, _}
 import models.Organization
-import models.daos.ModelDAO
+import models.daos.AbstractModelDAO
 import play.api.libs.concurrent.Execution.Implicits._
 
 import scala.concurrent.Future
@@ -11,12 +11,10 @@ import scala.concurrent.Future
 /**
   * Created by ryan on 3/9/16.
   */
-class OrganizationDAOImpl extends ModelDAO[Organization, Organization] {
-
-  import OrganizationDAOImpl._
+class OrganizationDAOImpl extends AbstractModelDAO[Organization, Organization] {
 
   override def find(id: Long): Future[Option[Organization]] =
-    find(id, organizationSelectByIDSQL, organizationSelectParser)
+    find(id, selectSQL, parser)
 
   override def findBy(org: Organization): Future[Option[List[Organization]]] =
     org.id match {
@@ -28,20 +26,19 @@ class OrganizationDAOImpl extends ModelDAO[Organization, Organization] {
       case None => Future.failed(new IllegalStateException(s"Unable to find Organization by Organization without an ID"))
     }
 
-  override def save(org: Organization): Future[Organization] =
-    save(org, org.id, insert, update)
-
   override protected def insert(org: Organization): Future[Organization] =
-    insert(organizationInsertSQL, organizationIDParser, 'name -> org.name)
+    insertWithParams(org)
 
   override protected def update(org: Organization): Future[Organization] =
-    update(org.id, organizationUpdateSQL, 'name -> org.name)
+    updateWithParams(org)
 
-  override def all: Future[List[Organization]] = all(organizationSelectAllSQL, organizationSelectParser)
-}
+  override protected def getNamedParameters(org: Organization): Option[List[NamedParameter]] = {
+    Some(List[NamedParameter](
+      'name -> org.name
+    ))
+  }
 
-object OrganizationDAOImpl {
-  val organizationInsertSQL = SQL(
+  override protected val insertSQL = SQL(
     """
       |insert into organization (
       |  name
@@ -50,9 +47,8 @@ object OrganizationDAOImpl {
       |)
     """.stripMargin
   )
-  val organizationIDParser = long("id")
 
-  val organizationUpdateSQL = SQL(
+  override protected val updateSQL = SQL(
     """
       |update organization
       |set
@@ -62,22 +58,23 @@ object OrganizationDAOImpl {
     """.stripMargin
   )
 
-  val organizationSelectByIDSQL = SQL(
+  override protected val selectSQL = SQL(
     """
       |select id, name
       |from organization
       |where id = {id}
     """.stripMargin
   )
+  override protected val selectBySQL = selectSQL
 
-  val organizationSelectAllSQL = SQL(
+  override protected val selectAllSQL = SQL(
     """
       |select id, name
       |from organization
     """.stripMargin
   )
 
-  val organizationSelectParser = for {
+  override protected val parser = for {
     id <- long("id")
     name <- str("name")
   } yield {
