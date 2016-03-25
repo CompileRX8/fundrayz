@@ -1,3 +1,4 @@
+-- noinspection SqlNoDataSourceInspectionForFile
 # SECURITY SCHEMA
 
 # --- !Ups

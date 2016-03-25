@@ -1,7 +1,7 @@
 package models.daos.organization
 
 import anorm.SqlParser._
-import anorm.{NamedParameter, _}
+import anorm._
 import models.Organization
 import models.daos.AbstractModelDAO
 import play.api.libs.concurrent.Execution.Implicits._
@@ -13,11 +13,8 @@ import scala.concurrent.Future
   */
 class OrganizationDAOImpl extends AbstractModelDAO[Organization, Organization] {
 
-  override def find(id: Long): Future[Option[Organization]] =
-    find(id, selectSQL, parser)
-
   override def findBy(org: Organization): Future[Option[List[Organization]]] =
-    org.id match {
+    org.idOpt match {
       case Some(id) =>
         find(id) map {
           case Some(o) => Some(List(o))
@@ -25,12 +22,6 @@ class OrganizationDAOImpl extends AbstractModelDAO[Organization, Organization] {
         }
       case None => Future.failed(new IllegalStateException(s"Unable to find Organization by Organization without an ID"))
     }
-
-  override protected def insert(org: Organization): Future[Organization] =
-    insertWithParams(org)
-
-  override protected def update(org: Organization): Future[Organization] =
-    updateWithParams(org)
 
   override protected def getNamedParameters(org: Organization): Option[List[NamedParameter]] = {
     Some(List[NamedParameter](
@@ -58,21 +49,21 @@ class OrganizationDAOImpl extends AbstractModelDAO[Organization, Organization] {
     """.stripMargin
   )
 
-  override protected val selectSQL = SQL(
+  private val selectString =
     """
       |select id, name
       |from organization
+    """.stripMargin
+
+  override protected val selectSQL = SQL(
+    selectString +
+    """
       |where id = {id}
     """.stripMargin
   )
   override protected val selectBySQL = selectSQL
 
-  override protected val selectAllSQL = SQL(
-    """
-      |select id, name
-      |from organization
-    """.stripMargin
-  )
+  override protected val selectAllSQL = SQL(selectString)
 
   override protected val parser = for {
     id <- long("id")

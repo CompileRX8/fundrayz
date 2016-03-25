@@ -15,7 +15,7 @@ import com.mohiva.play.silhouette.api.{Identity, LoginInfo}
   * @param email Maybe the email of the authenticated provider.
   * @param avatarURL Maybe the avatar URL of the authenticated provider.
   */
-case class User(
+case class User( idOpt: Option[Long],
                  userID: UUID,
                  loginInfo: LoginInfo,
                  firstName: Option[String],
@@ -23,7 +23,7 @@ case class User(
                  fullName: Option[String],
                  email: Option[String],
                  avatarURL: Option[String]
-               ) extends Identity
+               ) extends Identity with WithID
 
 class UserRole(val name: String)
 trait OrgRole

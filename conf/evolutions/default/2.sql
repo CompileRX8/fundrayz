@@ -1,3 +1,4 @@
+-- noinspection SqlNoDataSourceInspectionForFile
 # DATA OBJECT SCHEMA
 
 # --- !Ups
@@ -28,9 +29,15 @@ CREATE TABLE event (
 CREATE TABLE work_schedule (
   id         BIGSERIAL PRIMARY KEY,
   event_id   BIGINT NOT NULL REFERENCES event (id) ON DELETE CASCADE,
-  "user"     BIGINT NOT NULL REFERENCES user_info (id) ON DELETE CASCADE,
+  worker     UUID NOT NULL REFERENCES user_info (user_id) ON DELETE CASCADE,
   start_date DATE   NOT NULL,
   end_date   DATE   NOT NULL
+);
+
+CREATE TABLE contact (
+  person UUID PRIMARY KEY REFERENCES user_info (user_id) ON DELETE CASCADE,
+  org_id BIGINT NOT NULL REFERENCES organization (id) ON DELETE CASCADE,
+  UNIQUE (person, org_id)
 );
 
 CREATE TABLE sale_type (
@@ -78,23 +85,24 @@ CREATE TABLE silent_auction_item (
 CREATE TABLE bid (
   id BIGSERIAL PRIMARY KEY,
   item_id BIGINT NOT NULL REFERENCES item (id) ON DELETE RESTRICT,
-  bidder BIGINT NOT NULL REFERENCES user_info (id) ON DELETE RESTRICT,
-  cashier BIGINT NOT NULL REFERENCES user_info (id) ON DELETE RESTRICT,
+  bidder UUID NOT NULL REFERENCES user_info (user_id) ON DELETE RESTRICT,
+  cashier UUID NOT NULL REFERENCES user_info (user_id) ON DELETE RESTRICT,
   amount MONEY NOT NULL
 );
 
 CREATE TABLE purchase (
   id BIGSERIAL PRIMARY KEY,
   item_id BIGINT NOT NULL REFERENCES item (id) ON DELETE RESTRICT,
-  purchaser BIGINT NOT NULL REFERENCES user_info (id) ON DELETE RESTRICT,
-  cashier BIGINT NOT NULL REFERENCES user_info (id) ON DELETE RESTRICT,
+  purchaser UUID NOT NULL REFERENCES user_info (user_id) ON DELETE RESTRICT,
+  cashier UUID NOT NULL REFERENCES user_info (user_id) ON DELETE RESTRICT,
   amount MONEY NOT NULL
 );
 
 CREATE TABLE payment (
   id BIGSERIAL PRIMARY KEY,
-  payer BIGINT NOT NULL REFERENCES user_info (id) ON DELETE RESTRICT,
-  cashier BIGINT NOT NULL REFERENCES user_info (id) ON DELETE RESTRICT,
+  org_id BIGINT NOT NULL REFERENCES organization (id) ON DELETE RESTRICT,
+  payer UUID NOT NULL REFERENCES user_info (user_id) ON DELETE RESTRICT,
+  cashier UUID NOT NULL REFERENCES user_info (user_id) ON DELETE RESTRICT,
   amount MONEY NOT NULL,
   description TEXT NOT NULL
 )

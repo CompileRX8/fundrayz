@@ -5,16 +5,16 @@ import java.time.{LocalDateTime, Duration}
 /**
   * Created by ryan on 12/24/15.
   */
-case class Organization(id: Option[Long], name: String) extends WithID(id)
+case class Organization(idOpt: Option[Long], name: String) extends WithID
 
-case class Campaign(id: Option[Long], org: Organization, name: String, startDate: LocalDateTime, duration: Duration) extends WithID(id)
+case class Campaign(idOpt: Option[Long], org: Organization, name: String, startDate: LocalDateTime, duration: Duration) extends WithID with WithDates
 
-case class Event(id: Option[Long], campaign: Campaign, name: String, startDate: LocalDateTime, duration: Duration) extends WithID(id)
+case class Event(idOpt: Option[Long], campaign: Campaign, name: String, startDate: LocalDateTime, duration: Duration) extends WithID with WithDates
 
-case class WorkSchedule(id: Option[Long], event: Event, user: User, startDate: LocalDateTime, duration: Duration) extends WithID(id)
+case class WorkSchedule(idOpt: Option[Long], event: Event, user: User, startDate: LocalDateTime, duration: Duration) extends WithID with WithDates
 
-case class Contact(id: Option[Long], userInfo: Option[User], orgs: List[Organization] = List()) extends WithID(id)
+case class Contact(idOpt: Option[Long], person: User, orgs: List[Organization] = List()) extends WithID
 
-case class Payment(id: Option[Long], payer: User, cashier: User, amount: BigDecimal, description: String) extends WithID(id)
+case class Payment(idOpt: Option[Long], payer: User, cashier: User, amount: BigDecimal, description: String) extends WithID
 
-case class Purchase(id: Option[Long], item: Item, purchaser: User, cashier: User, amount: BigDecimal) extends WithID(id)
+case class Purchase(idOpt: Option[Long], item: Item, purchaser: User, cashier: User, amount: BigDecimal) extends WithID

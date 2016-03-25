@@ -1,6 +1,11 @@
 package models
 
+import anorm.NamedParameter
+
 /**
   * Created by ryan on 3/24/16.
   */
-abstract class WithID(val idOpt: Option[Long])
+trait WithID {
+  val idOpt: Option[Long]
+  def getIDParam: Option[NamedParameter] = idOpt map { 'id -> _ }
+}

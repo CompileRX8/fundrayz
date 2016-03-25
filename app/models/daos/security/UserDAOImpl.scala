@@ -182,6 +182,7 @@ object UserDAOImpl {
     """.stripMargin)
 
   val userInfoInsertParser = for {
+    id <- long("ui.id")
     user_id <- get[UUID]("user_id")
     first_name <- str("first_name").?
     last_name <- str("last_name").?
@@ -190,6 +191,7 @@ object UserDAOImpl {
     avatar_url <- str("avatar_url").?
   } yield {
     User(
+      Some(id),
       user_id,
       null,
       first_name,

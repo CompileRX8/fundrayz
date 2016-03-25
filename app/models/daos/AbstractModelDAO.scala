@@ -15,6 +15,9 @@ import scala.reflect.ClassTag
   */
 abstract class AbstractModelDAO[T <: WithID, FB <: WithID](implicit val tClassTag: ClassTag[T], implicit val fbClassTag: ClassTag[FB]) extends ModelDAO[T, FB] {
 
+  private val tName = tClassTag.runtimeClass.getCanonicalName
+  private val fbName = fbClassTag.runtimeClass.getCanonicalName
+
   def save(t: T): Future[T] =
     t.idOpt match {
       case None => insert(t)
@@ -22,14 +25,17 @@ abstract class AbstractModelDAO[T <: WithID, FB <: WithID](implicit val tClassTa
         find(id) flatMap {
           case Some(_) => update(t)
           case None =>
-            val tName = tClassTag.runtimeClass.getCanonicalName
             Future.failed(new IllegalStateException(s"Unable to update $tName when unable to find ID $id"))
         }
     }
 
-  protected def insertWithParams(t: T): Future[T] = insert(insertSQL, long("id"))
+  def insert(t: T): Future[T] = {
+    getNamedParameters(t) map { namedParameters =>
+      insert(insertSQL, namedParameters: _*)
+    } getOrElse Future.failed(new IllegalStateException(s"Unable to insert $tName without named parameters"))
+  }
 
-  protected def insert(insertSQL: SqlQuery, parser: RowParser[Long], insertParams: NamedParameter*): Future[T] =
+  protected def insert(insertSQL: SqlQuery, insertParams: NamedParameter*): Future[T] =
     Future {
       DB.withConnection { implicit conn =>
         insertSQL
@@ -42,47 +48,27 @@ abstract class AbstractModelDAO[T <: WithID, FB <: WithID](implicit val tClassTa
           _.get
         }
       case None =>
-        val tName = tClassTag.runtimeClass.getCanonicalName
         Future.failed(new IllegalStateException(s"Unable to insert $tName with $insertParams"))
     }
 
-  protected def updateWithParams(t: T): Future[T] =
-    getIDParam(t) match {
+  def update(t: T): Future[T] =
+    t.getIDParam match {
       case None =>
-        val tName = tClassTag.runtimeClass.getCanonicalName
         Future.failed(new IllegalStateException(s"Unable to update $tName without an ID"))
       case Some(idParam) =>
         val updateParamsOpt = getNamedParameters(t)
         updateParamsOpt map { updateParams =>
+          val params = updateParams :+ idParam
           Future {
             DB.withConnection { implicit conn =>
-              updateSQL.on(updateParams: _*).executeUpdate()
+              updateSQL.on(params: _*).executeUpdate()
             }
           } flatMap { _ =>
             find(t.idOpt.get)
           } map {
             _.get
           }
-        } getOrElse Future.failed(new IllegalStateException())
-    }
-
-  protected def update(t: T, updateSQL: SqlQuery, updateParams: NamedParameter*): Future[T] =
-    t.idOpt match {
-      case None =>
-        val tName = tClassTag.runtimeClass.getCanonicalName
-        Future.failed(new IllegalStateException(s"Unable to update $tName without an ID"))
-      case Some(id) =>
-        Future {
-          DB.withConnection { implicit conn =>
-            val idParam: NamedParameter = 'id -> id
-            val params = updateParams :+ idParam
-            updateSQL.on(params: _*).executeUpdate()
-          }
-        } flatMap { _ =>
-          find(id)
-        } map {
-          _.get
-        }
+        } getOrElse Future.failed(new IllegalStateException(s"Unable to update $tName without a dependent ID"))
     }
 
   def find(id: Long): Future[Option[T]] = find(id, selectSQL, parser)
@@ -104,8 +90,6 @@ abstract class AbstractModelDAO[T <: WithID, FB <: WithID](implicit val tClassTa
   protected def findBy(fb: FB, selectBySQL: SqlQuery, parser: RowParser[T]): Future[Option[List[T]]] =
     fb.idOpt match {
       case None =>
-        val tName = tClassTag.runtimeClass.getCanonicalName
-        val fbName = fbClassTag.runtimeClass.getCanonicalName
         Future.failed(new IllegalStateException(s"Unable to find ${tName}s by $fbName ID without an ID"))
       case Some(fbId) =>
         Future {
@@ -134,6 +118,4 @@ abstract class AbstractModelDAO[T <: WithID, FB <: WithID](implicit val tClassTa
           .as(parser.*)
       }
     }
-
-  protected def getIDParam(t: T): Option[NamedParameter] = t.idOpt map { 'id -> _ }
 }
