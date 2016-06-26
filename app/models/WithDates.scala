@@ -20,7 +20,7 @@ trait WithDates {
 object WithDates {
   def dateValues(start: Date, end: Date, zoneId: ZoneId = ZoneId.systemDefault()): WithDates = {
     new WithDates() {
-      val startDate = LocalDateTime.from(start.toInstant).atZone(zoneId)
+      val startDate = LocalDateTime.from(start.toInstant) //.atZone(zoneId)
       val duration = Duration.between(start.toInstant, end.toInstant)
     }
   }

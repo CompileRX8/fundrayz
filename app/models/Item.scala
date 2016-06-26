@@ -5,8 +5,8 @@ import java.time.{LocalDateTime, Duration}
 /**
   * Created by ryan on 3/8/16.
   */
-case class Item(idOpt: Option[Long], campaign: Campaign, itemNumber: String, name: String, description: String, estValue: BigDecimal) extends WithID
-case class Donation(idOpt: Option[Long], item: Item, donor: String) extends WithID
+case class Item(idOpt: Option[Long], event: Event, itemNumber: String, name: String, description: String, estValue: BigDecimal) extends WithID
+case class Donation(idOpt: Option[Long], item: Item, donor: Either[String, User]) extends WithID
 
 trait SalesType
 case class OverTheCounter(price: BigDecimal, qtyOnHand: Int) extends SalesType

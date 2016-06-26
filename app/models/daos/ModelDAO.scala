@@ -21,11 +21,13 @@ trait ModelDAO[T <: WithID, FB <: WithID] {
 
   protected def update(t: T): Future[T]
 
+  val selectAlias: String
+  val selectString: String
   protected val selectSQL: SqlQuery
   protected val selectBySQL: SqlQuery
   protected val selectAllSQL: SqlQuery
   protected val insertSQL: SqlQuery
   protected val updateSQL: SqlQuery
-  protected val parser: RowParser[T]
+  val parser: RowParser[T]
   protected def getNamedParameters(t: T): Option[List[NamedParameter]]
 }

@@ -88,25 +88,35 @@ abstract class AbstractModelDAO[T <: WithID, FB <: WithID](implicit val tClassTa
   def findBy(fb: FB) = findBy(fb, selectBySQL, parser)
 
   protected def findBy(fb: FB, selectBySQL: SqlQuery, parser: RowParser[T]): Future[Option[List[T]]] =
-    fb.idOpt match {
-      case None =>
-        Future.failed(new IllegalStateException(s"Unable to find ${tName}s by $fbName ID without an ID"))
-      case Some(fbId) =>
-        Future {
-          DB.withConnection { implicit conn =>
-            val fbIdSymbol = Symbol(selectBySQL.paramsInitialOrder.head)
-            selectBySQL
-              .on(
-                fbIdSymbol -> fbId
-              )
-              .executeQuery()
-              .as(parser.*)
-          } match {
-            case Nil => None
-            case ts@List(_) => Some(ts)
-          }
-        }
+    _findByOther(fb, selectBySQL, parser) {
+      Future.failed(new IllegalStateException(s"Unable to find ${tName}s by $fbName ID without an ID"))
     }
+
+  protected def findByOther(other: WithID, selectBySQL: SqlQuery, parser: RowParser[T]): Future[Option[List[T]]] =
+    _findByOther(other, selectBySQL, parser) {
+      Future.failed(new IllegalStateException(s"Unable to find ${tName}s by other ID without an ID"))
+    }
+
+  private def _findByOther(other: WithID, selectBySQL: SqlQuery, parser: RowParser[T])(failureFn: => Future[Nothing]): Future[Option[List[T]]] =
+    other.idOpt match {
+      case None =>
+        failureFn
+      case Some(otherId) =>
+        val namedParameters = List[NamedParameter]( 'id -> otherId )
+        findByOther(namedParameters, selectBySQL, parser)
+    }
+
+  protected def findByOther(namedParameters: List[NamedParameter], selectBySQL: SqlQuery, parser: RowParser[T]): Future[Option[List[T]]] = Future {
+    DB.withConnection { implicit conn =>
+      selectBySQL
+        .on(namedParameters: _*)
+        .executeQuery()
+        .as(parser.*)
+    } match {
+      case Nil => None
+      case ts @ List(_) => Some(ts)
+    }
+  }
 
   def all: Future[List[T]] = all(selectSQL, parser)
 

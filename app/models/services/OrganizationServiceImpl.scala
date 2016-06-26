@@ -12,11 +12,10 @@ import scala.concurrent.Future
   * Created by ryan on 3/16/16.
   */
 class OrganizationServiceImpl @Inject()(
-                                         campaignDAO: AbstractModelDAO[Campaign, Organization],
-                                         eventDAO: AbstractModelDAO[Event, Campaign],
+                                         organizationDAO: AbstractModelDAO[Organization, Organization],
+                                         eventDAO: AbstractModelDAO[Event, Organization],
                                          workScheduleDAO: AbstractModelDAO[WorkSchedule, Event],
                                          contactDAO: AbstractModelDAO[Contact, Organization],
-                                         organizationDAO: AbstractModelDAO[Organization, Organization],
                                          paymentDAO: PaymentDAO,
                                          purchaseDAO: PurchaseDAO
                                        ) extends OrganizationService {
@@ -24,14 +23,9 @@ class OrganizationServiceImpl @Inject()(
   override def findOrganization(id: Long): Future[Option[Organization]] = organizationDAO.find(id)
   override def listOrganizations: Future[List[Organization]] = organizationDAO.all
 
-  override def save(campaign: Campaign): Future[Campaign] = campaignDAO.save(campaign)
-  override def findCampaign(id: Long): Future[Option[Campaign]] = campaignDAO.find(id)
-  override def findCampaignsForOrganization(org: Organization): Future[Option[List[Campaign]]] = campaignDAO.findBy(org)
-  override def listCampaigns: Future[List[Campaign]] = campaignDAO.all
-
   override def save(event: Event): Future[Event] = eventDAO.save(event)
   override def findEvent(id: Long): Future[Option[Event]] = eventDAO.find(id)
-  override def findEventsForCampaign(campaign: Campaign): Future[Option[List[Event]]] = eventDAO.findBy(campaign)
+  override def findEventsForOrganization(org: Organization): Future[Option[List[Event]]] = eventDAO.findBy(org)
   override def listEvents: Future[List[Event]] = eventDAO.all
 
   override def save(workSchedule: WorkSchedule): Future[WorkSchedule] = workScheduleDAO.save(workSchedule)
@@ -54,6 +48,5 @@ class OrganizationServiceImpl @Inject()(
   override def findPurchase(id: Long): Future[Option[Purchase]] = purchaseDAO.find(id)
   override def findPurchasesForContact(contact: Contact): Future[Option[List[Purchase]]] = purchaseDAO.findBy(contact)
   override def findPurchasesForOrganization(org: Organization): Future[Option[List[Purchase]]] = purchaseDAO.findBy(org)
-  override def findPurchasesForCampaign(campaign: Campaign): Future[Option[List[Purchase]]] = purchaseDAO.findBy(campaign)
   override def listPurchases: Future[List[Purchase]] = purchaseDAO.all
 }

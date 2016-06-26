@@ -7,9 +7,7 @@ import java.time.{LocalDateTime, Duration}
   */
 case class Organization(idOpt: Option[Long], name: String) extends WithID
 
-case class Campaign(idOpt: Option[Long], org: Organization, name: String, startDate: LocalDateTime, duration: Duration) extends WithID with WithDates
-
-case class Event(idOpt: Option[Long], campaign: Campaign, name: String, startDate: LocalDateTime, duration: Duration) extends WithID with WithDates
+case class Event(idOpt: Option[Long], organization: Organization, name: String, startDate: LocalDateTime, duration: Duration, campaign: Option[String]) extends WithID with WithDates
 
 case class WorkSchedule(idOpt: Option[Long], event: Event, user: User, startDate: LocalDateTime, duration: Duration) extends WithID with WithDates
 

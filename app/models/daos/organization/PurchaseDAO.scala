@@ -1,7 +1,7 @@
 package models.daos.organization
 
-import models.daos.{AbstractModelDAO, ModelDAO}
-import models.{Campaign, Contact, Organization, Purchase}
+import models.daos.ModelDAO
+import models.{Contact, Organization, Purchase}
 
 import scala.concurrent.Future
 
@@ -10,5 +10,4 @@ import scala.concurrent.Future
   */
 trait PurchaseDAO extends ModelDAO[Purchase, Contact] {
   def findBy(org: Organization): Future[Option[List[Purchase]]]
-  def findBy(campaign: Campaign): Future[Option[List[Purchase]]]
 }

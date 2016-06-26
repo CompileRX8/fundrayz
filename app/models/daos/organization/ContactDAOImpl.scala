@@ -1,77 +1,128 @@
 package models.daos.organization
 
-import java.util.UUID
 import javax.inject.Inject
 
-import anorm._
 import anorm.SqlParser._
+import anorm._
 import models.daos.AbstractModelDAO
-import models.daos.security.UserDAO
-import models.{Contact, Organization}
-import play.api.libs.concurrent.Execution.Implicits._
+import models._
+import models.daos.security.{UserDAO, UserRoleDAO}
+import play.api.db.DB
+import play.api.Play.current
+
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
   * Created by ryan on 3/16/16.
   */
-class ContactDAOImpl @Inject()(userDAO: UserDAO) extends AbstractModelDAO[Contact, Organization] {
+class ContactDAOImpl @Inject()(organizationDAO: AbstractModelDAO[Organization, Organization],
+                               userDAO: UserDAO,
+                               userRoleDAO: UserRoleDAO
+                              )(implicit ec: ExecutionContext) extends AbstractModelDAO[Contact, Organization] {
 
-  private val selectString =
-    """
-      |select ui.id, c.person, c.org_id, o.name
-      |from contact c
-      |inner join organization o on c.org_id = o.id
-      |inner join user_info ui on c.person = ui.user_id
+  private case class ContactRow(idOpt: Option[Long], person: User, org: Organization, role: UserRole) extends WithID
+
+  private object ContactRowDAO extends AbstractModelDAO[ContactRow, Organization] {
+    override val selectAlias = "contact"
+    override val selectString =
+      s"""
+         |$selectAlias.person,
+         |${organizationDAO.selectAlias}.id, ${organizationDAO.selectAlias}.name,
+         |${userDAO.selectString}
+         |inner join organization $selectAlias on $selectAlias.org_id = ${organizationDAO.selectAlias}.id
+         |inner join contact $selectAlias on $selectAlias.person = ${userDAO.selectAlias}.id
     """.stripMargin
 
-  override protected val selectSQL: SqlQuery = SQL(
-    selectString +
-    """
-      |where ui.id = {id}
+    override protected val selectSQL: SqlQuery =
+      SQL(
+        s"""
+           |select
+           |$selectString
+           |where ${userDAO.selectAlias}.id = {id}
     """.stripMargin
-  )
-
-  override protected def getNamedParameters(t: Contact): Option[List[NamedParameter]] =
-    for {
-      org <- t.orgs.headOption
-      orgId <- org.idOpt
-    } yield {
-      List[NamedParameter](
-        'person -> t.person.userID,
-        'org_id -> orgId
       )
-    }
 
-  override protected val parser: RowParser[Contact] =
-    for {
-      id <- long("ui.id")
-      personId <- get[UUID]("c.person")
-      orgId <- long("c.org_id")
-      orgName <- str("o.name")
-    } yield {
-      Contact(
-        Some(id),
-        null,
-        List(Organization(Some(orgId), orgName))
-      )
-    }
+    override protected def getNamedParameters(t: ContactRow): Option[List[NamedParameter]] =
+      t.org.idOpt flatMap { orgId =>
+        t.person.idOpt map { personId =>
+          List[NamedParameter](
+            'person -> personId,
+            'org_id -> orgId,
+            'user_role -> t.role.id
+          )
+        }
+      }
 
-  override protected val insertSQL: SqlQuery = SQL(
-    """
-      |insert into contact (
-      |  person,
-      |  org_id
-      |) values (
-      |  {person},
-      |  {org_id}
-      |)
-    """.stripMargin
-  )
-  override protected val selectAllSQL: SqlQuery = SQL(selectString)
+    override val parser: RowParser[ContactRow] =
+      (for {
+        id <- long(userDAO.selectAlias + ".id")
+        userRoleId <- long(selectAlias + ".user_role")
+        personId <- str(selectAlias + ".person")
+      } yield {
+        ContactRow(
+          Some(id),
+          null,
+          null,
+          null
+        )
+      }) ~ organizationDAO.parser ~ userDAO.parser map {
+        case contact ~ org ~ person =>
+          contact.copy(person = person, org = org)
+      }
+
+    override protected val insertSQL: SqlQuery = SQL(
+      s"""
+         |insert into contact (
+         |  person,
+         |  org_id,
+         |  user_role
+         |) values (
+         |  {person},
+         |  {org_id},
+         |  {user_role}
+         |)
+      """.stripMargin
+    )
+    override protected val selectAllSQL: SqlQuery = SQL(s"select $selectString")
+    override protected val updateSQL: SqlQuery = SQL("")
+    override protected val selectBySQL: SqlQuery = SQL(
+      s"""
+         |select
+         |$selectString
+         |where $selectAlias.org_id = {id}
+      """.stripMargin
+    )
+
+    def delete(personID: String): Future[Int] = Future {
+      DB.withConnection { implicit conn =>
+        SQL("delete from contact where person = {person}").on('person -> personID).executeUpdate()
+      }
+    }
+  }
+
+  override def insert(contact: Contact): Future[Contact] = ???
+
+  /* for {
+     contactId <- contact.idOpt
+     rowsDeleted <- ContactRowDAO.delete(contact.person.idToken.get)
+     org <- contact.orgs
+     contactRow <- ContactRowDAO.insert(ContactRow(None, org, contact.person.idToken.get))
+   } yield {
+     contact
+   } */
+
+  override def update(contact: Contact): Future[Contact] = insert(contact)
+
+  override val selectAlias: String = ""
+
+  override protected def getNamedParameters(t: Contact): Option[List[NamedParameter]] = None
+
+  override val parser: RowParser[Contact] = null
+
+  override protected val insertSQL: SqlQuery = SQL("")
+  override protected val selectAllSQL: SqlQuery = SQL("")
   override protected val updateSQL: SqlQuery = SQL("")
-  override protected val selectBySQL: SqlQuery = SQL(
-    selectString +
-    """
-      |where c.org_id = {org_id}
-    """.stripMargin
-  )
+  override val selectString: String = ""
+  override protected val selectBySQL: SqlQuery = SQL("")
+  override protected val selectSQL: SqlQuery = SQL("")
 }

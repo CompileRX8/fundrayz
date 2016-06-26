@@ -1,60 +1,56 @@
 package models.daos.organization
 
-import java.util.UUID
 import javax.inject.Inject
 
 import anorm._
 import anorm.SqlParser._
 import models.daos.AbstractModelDAO
-import models.daos.security.UserDAO
 import models.{Contact, Organization, Payment}
-import play.api.libs.concurrent.Execution.Implicits._
+import play.api.Play.current
 
 import scala.concurrent.Future
 
 /**
   * Created by ryan on 3/16/16.
   */
-class PaymentDAOImpl @Inject()(userDAO: UserDAO) extends AbstractModelDAO[Payment, Contact] with PaymentDAO {
+class PaymentDAOImpl @Inject()() extends AbstractModelDAO[Payment, Contact] with PaymentDAO {
   override def findBy(org: Organization): Future[Option[List[Payment]]] = ???
 
-  private val selectString =
-    """
-      |select id, payer, cashier, amount, description
-      |from payment
+  override val selectAlias = "pmt"
+  override val selectString =
+    s"""
+       |$selectAlias.id, $selectAlias.payer, $selectAlias.cashier, $selectAlias.amount, $selectAlias.description
+       |from payment $selectAlias
     """.stripMargin
 
   override protected val selectSQL: SqlQuery = SQL(
-    selectString +
-      """
-        |where id = {id}
+    s"""
+       |select
+       |$selectString
+       |where $selectAlias.id = {id}
       """.stripMargin
   )
 
   override protected def getNamedParameters(t: Payment): Option[List[NamedParameter]] =
     Some(List[NamedParameter](
-      'payer -> t.payer.userID,
-      'cashier -> t.cashier.userID,
+      'payer -> t.payer.idToken,
+      'cashier -> t.cashier.idToken,
       'amount -> t.amount,
       'description -> t.description
     ))
 
-  override protected val parser: RowParser[Payment] =
+  override val parser: RowParser[Payment] =
     for {
       id <- long("id")
-      payerId <- get[UUID]("payer")
-      payerOpt <- userDAO.find(payerId)
-      payer <- payerOpt
-      cashierId <- get[UUID]("cashier")
-      cashierOpt <- userDAO.find(cashierId)
-      cashier <- cashierOpt
+      payerId <- str("payer")
+      cashierId <- str("cashier")
       amount <- double("amount")
       description <- str("description")
     } yield {
       Payment(
         Some(id),
-        payer,
-        cashier,
+        null,
+        null,
         amount,
         description
       )
@@ -67,35 +63,37 @@ class PaymentDAOImpl @Inject()(userDAO: UserDAO) extends AbstractModelDAO[Paymen
       |  amount,
       |  description
       |) values (
-      |  {payer}::uuid,
-      |  {cashier}::uuid,
+      |  {payer},
+      |  {cashier},
       |  {amount},
       |  {description}
       |)
     """.stripMargin
   )
-  override protected val selectAllSQL: SqlQuery = SQL(selectString)
+  override protected val selectAllSQL: SqlQuery = SQL(s"select $selectString")
   override protected val updateSQL: SqlQuery = SQL(
     """
       |update payment
       |set
-      |payer = {payer}::uuid,
-      |cashier = {cashier}::uuid,
+      |payer = {payer},
+      |cashier = {cashier},
       |amount = {amount},
       |description = {description}
       |where id = {id}
     """.stripMargin
   )
   override protected val selectBySQL: SqlQuery = SQL(
-    selectString +
-      """
-        |where payer = {payer}::uuid
+    s"""
+       |select
+       |$selectString
+       |where payer = {id}
       """.stripMargin
   )
-  private val selectByPayerSQL: SqlQuery = SQL(
-    selectString +
-      """
-        |where payer = {payer}::uuid
+  private val selectByOrgSQL: SqlQuery = SQL(
+    s"""
+       |select
+       |$selectString
+       |where org_id = {id}
       """.stripMargin
   )
 }

@@ -210,6 +210,17 @@ define [],
             $scope.user = undefined
             $scope.credentials = {}
     ]
+    
+    mod.controller 'LoginCtrl', ['$scope', '$log',
+      ($scope, $log) ->
+        $log.log 'Created LoginCtrl'
+        $scope.lock = new Auth0Lock(AUTH0_CLIENT_ID, AUTH0_DOMAIN)
+        
+        $scope.login = ->
+          $scope.lock.show({
+            callbackURL: AUTH0_CALLBACK_URL
+          })
+    ]
 
     mod.controller 'FooterCtrl', ['$scope', 'statusService',
       ($scope, statusService) ->

@@ -30,7 +30,7 @@ class OrganizationDAOImpl extends AbstractModelDAO[Organization, Organization] {
   }
 
   override protected val insertSQL = SQL(
-    """
+    s"""
       |insert into organization (
       |  name
       |) values (
@@ -40,7 +40,7 @@ class OrganizationDAOImpl extends AbstractModelDAO[Organization, Organization] {
   )
 
   override protected val updateSQL = SQL(
-    """
+    s"""
       |update organization
       |set
       |name = {name}
@@ -49,25 +49,27 @@ class OrganizationDAOImpl extends AbstractModelDAO[Organization, Organization] {
     """.stripMargin
   )
 
-  private val selectString =
-    """
-      |select id, name
-      |from organization
+  override val selectAlias = "org"
+  override val selectString =
+    s"""
+      |$selectAlias.id, $selectAlias.name
+      |from organization $selectAlias
     """.stripMargin
 
   override protected val selectSQL = SQL(
-    selectString +
-    """
-      |where id = {id}
+    s"""
+      |select
+      |$selectString
+      |where $selectAlias.id = {id}
     """.stripMargin
   )
   override protected val selectBySQL = selectSQL
 
-  override protected val selectAllSQL = SQL(selectString)
+  override protected val selectAllSQL = SQL(s"select $selectString")
 
-  override protected val parser = for {
-    id <- long("id")
-    name <- str("name")
+  override val parser = for {
+    id <- long(selectAlias + ".id")
+    name <- str(selectAlias + ".name")
   } yield {
     Organization(Some(id), name)
   }

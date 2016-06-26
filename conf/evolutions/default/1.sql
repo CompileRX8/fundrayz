@@ -3,76 +3,59 @@
 
 # --- !Ups
 
-CREATE TABLE login_info (
-  id           BIGSERIAL PRIMARY KEY,
-  provider_id  TEXT NOT NULL,
-  provider_key TEXT NOT NULL,
-  UNIQUE (provider_id, provider_key)
-);
-
-CREATE TABLE password_info (
-  id            BIGSERIAL PRIMARY KEY,
-  login_info_id BIGINT NOT NULL UNIQUE REFERENCES login_info (id) ON DELETE CASCADE,
-  hasher        TEXT   NOT NULL,
-  password      TEXT   NOT NULL,
-  salt          TEXT
-);
-
-CREATE TABLE oauth1_info (
-  id            BIGSERIAL PRIMARY KEY,
-  login_info_id BIGINT NOT NULL UNIQUE REFERENCES login_info (id) ON DELETE CASCADE,
-  token         TEXT   NOT NULL,
-  secret        TEXT   NOT NULL
-);
-
-CREATE TABLE oauth2_info (
-  id            BIGSERIAL PRIMARY KEY,
-  login_info_id BIGINT NOT NULL UNIQUE REFERENCES login_info (id) ON DELETE CASCADE,
-  access_token  TEXT   NOT NULL,
-  token_type    TEXT,
-  expires_in    INT,
-  refresh_token TEXT
-);
-
-CREATE TABLE oauth2_info_params (
-  oauth2_info_id BIGINT NOT NULL REFERENCES oauth2_info (id) ON DELETE CASCADE,
-  param_name     TEXT   NOT NULL,
-  param_value    TEXT   NOT NULL,
-  UNIQUE (param_name, param_value)
-);
-
-CREATE TABLE openid_info (
-  id            BIGSERIAL PRIMARY KEY,
-  login_info_id BIGINT NOT NULL UNIQUE REFERENCES login_info (id) ON DELETE CASCADE,
-  open_id       TEXT   NOT NULL
-);
-
-CREATE TABLE openid_info_attributes (
-  openid_info_id  BIGINT NOT NULL REFERENCES openid_info (id) ON DELETE CASCADE,
-  attribute_name  TEXT   NOT NULL,
-  attribute_value TEXT   NOT NULL,
-  UNIQUE (attribute_name, attribute_value)
-);
-
 CREATE TABLE user_info (
   id            BIGSERIAL PRIMARY KEY,
-  user_id       UUID UNIQUE,
-  login_info_id BIGINT NOT NULL REFERENCES login_info (id) ON DELETE CASCADE,
+  id_token      TEXT UNIQUE,
   first_name    TEXT,
   last_name     TEXT,
-  full_name     TEXT,
   email         TEXT,
-  avatar_url    TEXT,
-  email_token   TEXT
+  tags          JSONB
 );
+
+CREATE TABLE user_role (
+  id BIGINT PRIMARY KEY,
+  name TEXT UNIQUE NOT NULL
+);
+INSERT INTO user_role (id, name) VALUES (0, 'super_admin');
+INSERT INTO user_role (id, name) VALUES (1, 'org_admin');
+INSERT INTO user_role (id, name) VALUES (2, 'event_admin');
+INSERT INTO user_role (id, name) VALUES (3, 'payment_admin');
+INSERT INTO user_role (id, name) VALUES (4, 'purchase_admin');
+INSERT INTO user_role (id, name) VALUES (5, 'bid_admin');
+INSERT INTO user_role (id, name) VALUES (10, 'normal');
+
+CREATE TABLE role_permission (
+  role_id BIGINT NOT NULL REFERENCES user_role(id) ON DELETE RESTRICT,
+  permission TEXT NOT NULL,
+  PRIMARY KEY (role_id, permission)
+);
+INSERT INTO role_permission VALUES (0, 'the_world');
+INSERT INTO role_permission VALUES (10, 'org_create');
+INSERT INTO role_permission VALUES (1, 'org_edit');
+INSERT INTO role_permission VALUES (1, 'org_delete');
+INSERT INTO role_permission VALUES (1, 'event_create');
+INSERT INTO role_permission VALUES (2, 'event_edit');
+INSERT INTO role_permission VALUES (1, 'event_delete');
+INSERT INTO role_permission VALUES (2, 'item_create');
+INSERT INTO role_permission VALUES (2, 'item_edit');
+INSERT INTO role_permission VALUES (2, 'item_delete');
+INSERT INTO role_permission VALUES (2, 'work_schedule_create');
+INSERT INTO role_permission VALUES (2, 'work_schedule_edit');
+INSERT INTO role_permission VALUES (2, 'work_schedule_delete');
+INSERT INTO role_permission VALUES (1, 'role_assign');
+INSERT INTO role_permission VALUES (3, 'payment_create');
+INSERT INTO role_permission VALUES (2, 'payment_edit');
+INSERT INTO role_permission VALUES (1, 'payment_delete');
+INSERT INTO role_permission VALUES (4, 'purchase_create');
+INSERT INTO role_permission VALUES (3, 'purchase_edit');
+INSERT INTO role_permission VALUES (2, 'purchase_delete');
+INSERT INTO role_permission VALUES (5, 'bid_create');
+INSERT INTO role_permission VALUES (5, 'bid_edit');
+INSERT INTO role_permission VALUES (5, 'bid_delete');
+INSERT INTO role_permission VALUES (10, 'bid_create_self');
 
 # --- !Downs
 
+DROP TABLE role_permission;
+DROP TABLE user_role;
 DROP TABLE user_info;
-DROP TABLE openid_info_attributes;
-DROP TABLE openid_info;
-DROP TABLE oauth2_info_params;
-DROP TABLE oauth2_info;
-DROP TABLE oauth1_info;
-DROP TABLE password_info;
-DROP TABLE login_info;

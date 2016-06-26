@@ -12,14 +12,9 @@ trait OrganizationService {
   def findOrganization(id: Long): Future[Option[Organization]]
   def listOrganizations: Future[List[Organization]]
 
-  def save(campaign: Campaign): Future[Campaign]
-  def findCampaign(id: Long): Future[Option[Campaign]]
-  def findCampaignsForOrganization(org: Organization): Future[Option[List[Campaign]]]
-  def listCampaigns: Future[List[Campaign]]
-
   def save(event: Event): Future[Event]
   def findEvent(id: Long): Future[Option[Event]]
-  def findEventsForCampaign(campaign: Campaign): Future[Option[List[Event]]]
+  def findEventsForOrganization(org: Organization): Future[Option[List[Event]]]
   def listEvents: Future[List[Event]]
 
   def save(workSchedule: WorkSchedule): Future[WorkSchedule]
@@ -42,6 +37,5 @@ trait OrganizationService {
   def findPurchase(id: Long): Future[Option[Purchase]]
   def findPurchasesForContact(contact: Contact): Future[Option[List[Purchase]]]
   def findPurchasesForOrganization(org: Organization): Future[Option[List[Purchase]]]
-  def findPurchasesForCampaign(campaign: Campaign): Future[Option[List[Purchase]]]
   def listPurchases: Future[List[Purchase]]
 }

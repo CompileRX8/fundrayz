@@ -1,216 +1,108 @@
 package models.daos.security
 
-import java.util.UUID
+import javax.inject.Inject
 
-import anorm.SqlParser._
 import anorm._
-import com.mohiva.play.silhouette.api.LoginInfo
+import anorm.SqlParser._
 import models.User
-import play.api.Play.current
-import play.api.db.DB
-import play.api.libs.concurrent.Execution.Implicits._
+import models.daos.AbstractModelDAO
+import play.api.libs.json.Json
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
-  * Data access for User objects.
+  * Created by ryan on 4/11/16.
   */
-class UserDAOImpl extends UserDAO {
+class UserDAOImpl @Inject()(implicit ec: ExecutionContext) extends AbstractModelDAO[User, User] with UserDAO {
+  override val selectAlias: String = "usr"
 
-  import UserDAOImpl._
+  override val selectString: String =
+    s"""
+       |$selectAlias.id, $selectAlias.id_token, $selectAlias.first_name,
+       |$selectAlias.last_name, |$selectAlias.email, $selectAlias.tags::jsonb
+       |from user_info $selectAlias
+     """.stripMargin
 
-  /**
-    * Finds a user by its login info.
-    *
-    * @param loginInfo The login info of the user to find.
-    * @return The found user or None if no user for the given login info could be found.
-    */
-  def find(loginInfo: LoginInfo): Future[Option[User]] = Future {
-    DB.withConnection { implicit conn =>
-      userInfoSelectByLoginInfoSQL
-        .on(
-          'provider_id -> loginInfo.providerID,
-          'provider_key -> loginInfo.providerKey
-        )
-        .executeQuery()
-        .as(userInfoSelectParser.singleOpt)
-    }
-  }
+  override protected def getNamedParameters(t: User): Option[List[NamedParameter]] =
+    Some(List[NamedParameter](
+      'id_token -> t.idToken,
+      'first_name -> t.firstName,
+      'last_name -> t.lastName,
+      'email -> t.email,
+      'tags -> t.tags.map(Json.stringify)
+    ))
 
-  /**
-    * Finds a user by its user ID.
-    *
-    * @param userID The ID of the user to find.
-    * @return The found user or None if no user for the given ID could be found.
-    */
-  def find(userID: UUID): Future[Option[User]] = Future {
-    DB.withConnection { implicit conn =>
-      userInfoSelectByUUIDSQL
-        .on('user_id -> userID)
-        .executeQuery()
-        .as(userInfoSelectParser.singleOpt)
-    }
-  }
-
-  /**
-    * Saves a user.
-    *
-    * @param user The user to save.
-    * @return The saved user.
-    */
-  def save(user: User): Future[User] = {
-    // If the user's ID already exists, update the User fields.
-    // Otherwise, insert the new User
-    find(user.userID) flatMap {
-      case Some(_) => update(user)
-      case None => insert(user)
-    }
-  }
-
-  private def insert(user: User): Future[User] = Future {
-    DB.withConnection { implicit conn =>
-      loginInfoInsertSQL
-        .on(
-          'provider_id -> user.loginInfo.providerID,
-          'provider_key -> user.loginInfo.providerKey
-        ).executeInsert(loginInfoIDParser.singleOpt)
-      match {
-        case Some(id) =>
-          userInfoInsertSQL.on(
-            'user_id -> user.userID,
-            'login_info_id -> id,
-            'first_name -> user.firstName,
-            'last_name -> user.lastName,
-            'full_name -> user.fullName,
-            'email -> user.email,
-            'avatar_url -> user.avatarURL
-          ).executeInsert(userInfoInsertParser.single)
-            .copy(loginInfo = user.loginInfo)
-        case None => throw new IllegalStateException("Unable to add LoginInfo when adding User")
-      }
-    }
-  }
-
-  private def update(user: User): Future[User] = Future {
-    DB.withConnection { implicit conn =>
-      userInfoUpdateSQL.on(
-        'user_id -> user.userID,
-        'first_name -> user.firstName,
-        'last_name -> user.lastName,
-        'full_name -> user.fullName,
-        'email -> user.email,
-        'avatar_url -> user.avatarURL
-      ).executeUpdate()
-    }
-  } flatMap { _ =>
-    find(user.userID)
-  } map { _.get }
-}
-
-object UserDAOImpl {
-
-  val loginInfoInsertSQL = SQL(
-    """
-      |insert into login_info (
-      |  provider_id,
-      |  provider_key
-      |) values (
-      |  {provider_id},
-      |  {provider_key}
-      |)
-    """.stripMargin)
-
-  val loginInfoSelectIDByProviderIDAndProviderKeySQL = SQL(
-    """
-      |select id
-      |from login_info
-      |where provider_id = {provider_id}
-      |and provider_key = {provider_key}
-    """.stripMargin)
-
-  val loginInfoIDParser = long("id")
-
-  val userInfoSelectByLoginInfoSQL = SQL(
-    """
-      |select *
-      |from user_info ui
-      |inner join login_info li on ui.login_info_id = li.id
-      |where li.provider_id = {provider_id}
-      |and li.provider_key = {provider_key}
-    """.stripMargin)
-
-  val userInfoSelectByUUIDSQL = SQL(
-    """
-      |select *
-      |from user_info ui
-      |inner join login_info li on ui.login_info_id = li.id
-      |where ui.user_id = {user_id}::uuid
-    """.stripMargin)
-
-  val userInfoInsertSQL = SQL(
-    """
-      |insert into user_info (
-      |  user_id,
-      |  login_info_id,
-      |  first_name,
-      |  last_name,
-      |  full_name,
-      |  email,
-      |  avatar_url
-      |) values (
-      |  {user_id}::uuid,
-      |  {login_info_id},
-      |  {first_name},
-      |  {last_name},
-      |  {full_name},
-      |  {email},
-      |  {avatar_url}
-      |)
-    """.stripMargin)
-
-  val userInfoUpdateSQL = SQL(
-    """
-      |update user_info
-      |set
-      |first_name = {first_name},
-      |last_name = {last_name},
-      |full_name = {full_name},
-      |email = {email},
-      |avatar_url = {avatar_url}
-      |where
-      |user_id = {user_id}::uuid
-    """.stripMargin)
-
-  val userInfoInsertParser = for {
-    id <- long("ui.id")
-    user_id <- get[UUID]("user_id")
-    first_name <- str("first_name").?
-    last_name <- str("last_name").?
-    full_name <- str("full_name").?
-    email <- str("email").?
-    avatar_url <- str("avatar_url").?
+  override val parser: RowParser[User] = for {
+    id <- long(selectAlias + ".id")
+    idToken <- str(selectAlias + ".id_token")
+    firstName <- str(selectAlias + ".first_name").?
+    lastName <- str(selectAlias + ".last_name").?
+    email <- str(selectAlias + ".email").?
+    tags <- str(selectAlias + ".tags").?
   } yield {
+    val jsTags = tags.map(Json.parse)
     User(
       Some(id),
-      user_id,
-      null,
-      first_name,
-      last_name,
-      full_name,
+      idToken,
+      firstName,
+      lastName,
       email,
-      avatar_url
+      jsTags
     )
   }
 
-  val userInfoSelectParser = for {
-    partialUser <- userInfoInsertParser
-    provider_id <- str("provider_id")
-    provider_key <- str("provider_key")
-  } yield {
-    partialUser.copy(loginInfo = LoginInfo(
-      provider_id,
-      provider_key
-    )
-    )
+  override protected val insertSQL: SqlQuery = SQL(
+    s"""
+       |insert into user_info (
+       |  id_token,
+       |  first_name,
+       |  last_name,
+       |  email,
+       |  tags
+       |) values (
+       |  {id_token},
+       |  {first_name},
+       |  {last_name},
+       |  {email},
+       |  {tags}::jsonb
+       |)
+     """.stripMargin
+  )
+  override protected val selectAllSQL: SqlQuery = SQL(s"select $selectString")
+  override protected val updateSQL: SqlQuery = SQL(
+    s"""
+       |update user_info
+       |set
+       |id_token = {id_token},
+       |first_name = {first_name},
+       |last_name = {last_name},
+       |email = {email},
+       |tags = {tags}::jsonb
+       |where id = {id}
+     """.stripMargin
+  )
+
+  override protected val selectSQL: SqlQuery = SQL(
+    s"""
+       |select
+       |$selectString
+       |where id = {id}
+     """.stripMargin
+  )
+
+  override protected val selectBySQL: SqlQuery = selectSQL
+
+  private val selectByIDTokenSQL: SqlQuery = SQL(
+    s"""
+       |select
+       |$selectString
+       |where id_token = {id_token}
+     """.stripMargin
+  )
+  override def findBy(idToken: String): Future[Option[User]] = {
+    val namedParameters: List[NamedParameter] = List( 'id_token -> idToken )
+    findByOther(namedParameters, selectByIDTokenSQL, parser) map { optUsers =>
+      optUsers flatMap { _.headOption }
+    }
   }
 }
