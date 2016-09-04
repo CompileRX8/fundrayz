@@ -1,29 +1,27 @@
 name := """fundrayz"""
 
-lazy val commonSettings = Seq(
-  organization := "net.highley.fundrayz",
-  version := "1.0-SNAPSHOT",
-  scalaVersion := "2.11.7"
+version := "1.0-SNAPSHOT"
+
+lazy val root = (project in file(".")).enablePlugins(PlayScala).enablePlugins(SbtWeb)
+
+scalaVersion := "2.11.7"
+
+libraryDependencies ++= Seq(
+  jdbc,
+  evolutions,
+  cache,
+  ws,
+  filters,
+  "org.postgresql" % "postgresql" % "9.4.1207",
+  "com.typesafe.play" %% "anorm" % "2.5.0",
+  "org.webjars" %% "webjars-play" % "2.4.0-2",
+  "org.webjars" % "angularjs" % "1.4.9",
+  "org.webjars" % "bootstrap" % "3.3.5",
+  "net.codingwell" %% "scala-guice" % "4.0.1",
+  "net.ceedubs" %% "ficus" % "1.1.2",
+  "com.adrianhurt" %% "play-bootstrap3" % "0.4.5-P24",
+  specs2 % Test
 )
-
-lazy val root = (project in file("."))
-  .settings(commonSettings: _*)
-  .aggregate(userProfile, postgresExtension, monolith)
-
-lazy val userProfile = project
-  .settings(commonSettings: _*)
-  .enablePlugins(PlayScala)
-  .dependsOn(postgresExtension)
-
-lazy val postgresExtension = project
-  .settings(commonSettings: _*)
-  .enablePlugins(PlayScala)
-  .dependsOn()
-
-lazy val monolith = project
-  .settings(commonSettings: _*)
-  .enablePlugins(PlayScala)
-  .enablePlugins(SbtWeb)
 
 resolvers := ("Atlassian Releases" at "https://maven.atlassian.com/public/") +: resolvers.value
 
@@ -56,3 +54,6 @@ herokuAppName in Compile := "fundrayz"
 
 pipelineStages := Seq(rjs, digest, gzip)
 
+RjsKeys.mainModule := "app"
+
+//fork in run := true
