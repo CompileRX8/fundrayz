@@ -1,1 +1,1 @@
-web: target/universal/stage/bin/fundrayz -Dhttp.port=${PORT} -Dplay.evolutions.db.default.autoApply=true -Dconfig.resource=application.prod.conf
+userProfile: userProfile/target/universal/stage/bin/userProfile -Dhttp.port=${PORT} -Dplay.evolutions.db.default.autoApply=true -Dconfig.resource=application.prod.conf
