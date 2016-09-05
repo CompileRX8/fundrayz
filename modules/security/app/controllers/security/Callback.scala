@@ -1,21 +1,19 @@
-package controllers
+package controllers.security
 
 import javax.inject.Inject
 
-import models.Auth0Config
-import play.api.{Configuration, Logger}
+import models.security.Auth0Config
+import play.api.Configuration
+import play.api.cache.CacheApi
+import play.api.http.{HeaderNames, MimeTypes}
+import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.Json.toJsFieldJsValueWrapper
+import play.api.libs.ws.WSClient
+import play.api.mvc._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import play.api.cache.CacheApi
-import play.api.http.HeaderNames
-import play.api.http.MimeTypes
-import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.JsValue
-import play.api.libs.json.Json
-import play.api.libs.json.Json.toJsFieldJsValueWrapper
-import play.api.mvc._
-import play.api.libs.ws._
 
 class Callback @Inject()(ws: WSClient, cacheApi: CacheApi, config: Configuration, auth0Config: Auth0Config, val messagesApi: MessagesApi) extends Controller with I18nSupport {
 

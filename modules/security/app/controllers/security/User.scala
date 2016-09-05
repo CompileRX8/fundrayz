@@ -1,4 +1,4 @@
-package controllers
+package controllers.security
 
 import javax.inject.Inject
 
@@ -26,6 +26,6 @@ class User @Inject()(cacheApi: CacheApi, val messagesApi: MessagesApi) extends C
   def index = AuthenticatedAction { request =>
     val idToken = request.session.get("idToken").get
     val profile = cacheApi.get[JsValue](idToken + "profile").get
-    Ok(views.html.user(profile))
+    Ok(views.html.security.user(profile))
   }
 }

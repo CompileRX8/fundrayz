@@ -1,4 +1,4 @@
-package models
+package models.security
 
 /**
   * Created by ryan on 3/24/16.

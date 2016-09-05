@@ -6,29 +6,61 @@ lazy val commonSettings = Seq(
   scalaVersion := "2.11.7"
 )
 
-lazy val root = (project in file("."))
-  .settings(commonSettings: _*)
-  .aggregate(userProfile, postgresExtension, security) //, monolith)
+lazy val databaseDependencies = Seq(
+  "com.typesafe.play" %% "play-slick" % "2.0.0",
+  "com.typesafe.play" %% "play-slick-evolutions" % "2.0.0",
+  "org.postgresql" % "postgresql" % "9.4.1209",
+  "com.github.tminglei" %% "slick-pg" % "0.14.3",
+  "com.github.tminglei" %% "slick-pg_play-json" % "0.14.3"
+)
 
-lazy val userProfile = project
-  .settings(commonSettings: _*)
-  .enablePlugins(PlayScala)
-  .dependsOn(postgresExtension)
+lazy val webDependencies = Seq(
+  filters,
+  "org.webjars" %% "webjars-play" % "2.5.0-3",
+  "org.webjars" % "angularjs" % "1.5.8",
+  "org.webjars" % "bootstrap" % "3.3.7-1"
+)
 
-lazy val postgresExtension = project
+lazy val webClientDependencies = Seq(
+  cache,
+  ws
+)
+
+lazy val postgresExtension = (project in file("modules/postgresExtension"))
   .settings(commonSettings: _*)
+  .settings(libraryDependencies ++= databaseDependencies)
   .enablePlugins(PlayScala)
   .dependsOn()
 
-lazy val security = project
+lazy val userProfile = (project in file("modules/userProfile"))
   .settings(commonSettings: _*)
   .enablePlugins(PlayScala)
   .dependsOn(postgresExtension)
+
+lazy val security = (project in file("modules/security"))
+  .settings(commonSettings: _*)
+  .settings(libraryDependencies ++= webClientDependencies)
+  .enablePlugins(PlayScala)
+  .dependsOn(postgresExtension)
+
+lazy val root = (project in file("."))
+  .settings(commonSettings: _*)
+  .enablePlugins(PlayScala)
+  .dependsOn(userProfile, postgresExtension, security)
+  .aggregate(userProfile, postgresExtension, security)
 
 //lazy val monolith = project
 //  .settings(commonSettings: _*)
 //  .enablePlugins(PlayScala)
 //  .enablePlugins(SbtWeb)
+
+//libraryDependencies ++= (
+//  Seq(
+//    "com.typesafe.play" %% "play" % "2.5.5",
+//    specs2 % Test
+//  ) ++ webDependencies
+//  ++ webClientDependencies
+//)
 
 resolvers := ("Atlassian Releases" at "https://maven.atlassian.com/public/") +: resolvers.value
 

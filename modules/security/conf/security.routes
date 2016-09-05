@@ -1,0 +1,9 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+GET     /                           controllers.security.Application.index
+GET     /callback                   controllers.security.Callback.callback(code: Option[String])
+GET     /user                       controllers.security.User.index
+
+GET     /assets/*file               controllers.Assets.versioned(path="/public/lib/security", file: Asset)

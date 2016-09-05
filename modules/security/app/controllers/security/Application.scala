@@ -1,8 +1,8 @@
-package controllers
+package controllers.security
 
 import javax.inject.Inject
 
-import models.Auth0Config
+import models.security.Auth0Config
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, Controller}
 
@@ -12,6 +12,6 @@ import play.api.mvc.{Action, Controller}
 class Application @Inject()(auth0Config: Auth0Config, val messagesApi: MessagesApi) extends Controller with I18nSupport {
 
   def index = Action {
-    Ok(views.html.index(auth0Config))
+    Ok(views.html.security.index(auth0Config))
   }
 }
