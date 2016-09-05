@@ -49,19 +49,6 @@ lazy val root = (project in file("."))
   .dependsOn(userProfile, postgresExtension, security)
   .aggregate(userProfile, postgresExtension, security)
 
-//lazy val monolith = project
-//  .settings(commonSettings: _*)
-//  .enablePlugins(PlayScala)
-//  .enablePlugins(SbtWeb)
-
-//libraryDependencies ++= (
-//  Seq(
-//    "com.typesafe.play" %% "play" % "2.5.5",
-//    specs2 % Test
-//  ) ++ webDependencies
-//  ++ webClientDependencies
-//)
-
 resolvers := ("Atlassian Releases" at "https://maven.atlassian.com/public/") +: resolvers.value
 
 resolvers += "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases"
@@ -91,5 +78,5 @@ includeFilter in (Assets, LessKeys.less) := "*.less"
 
 herokuAppName in Compile := "fundrayz"
 
-pipelineStages := Seq(rjs, digest, gzip)
+//pipelineStages := Seq(rjs, digest, gzip)
 
