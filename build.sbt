@@ -8,7 +8,7 @@ lazy val commonSettings = Seq(
 
 lazy val root = (project in file("."))
   .settings(commonSettings: _*)
-  .aggregate(userProfile, postgresExtension, monolith)
+  .aggregate(userProfile, postgresExtension, security) //, monolith)
 
 lazy val userProfile = project
   .settings(commonSettings: _*)
@@ -20,10 +20,15 @@ lazy val postgresExtension = project
   .enablePlugins(PlayScala)
   .dependsOn()
 
-lazy val monolith = project
+lazy val security = project
   .settings(commonSettings: _*)
   .enablePlugins(PlayScala)
-  .enablePlugins(SbtWeb)
+  .dependsOn(postgresExtension)
+
+//lazy val monolith = project
+//  .settings(commonSettings: _*)
+//  .enablePlugins(PlayScala)
+//  .enablePlugins(SbtWeb)
 
 resolvers := ("Atlassian Releases" at "https://maven.atlassian.com/public/") +: resolvers.value
 

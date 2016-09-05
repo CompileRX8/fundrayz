@@ -1,0 +1,27 @@
+@import models.Auth0Config
+
+@(config: Auth0Config)(implicit messages: Messages)
+
+@scripts = {
+  <script src="https://cdn.auth0.com/js/lock/10.0/lock.min.js"></script>
+  <script>
+          var AUTH0_CLIENT_ID = '@config.clientId';
+          var AUTH0_DOMAIN = '@config.domain';
+          var AUTH0_CALLBACK_URL = '@config.callbackURL';
+  </script>
+}
+
+@main("Auth0 Play2 Scala Sample", scripts) {
+
+  <div class="container" ng-controller="LoginCtrl">
+    <div class="login-page clearfix">
+      <div class="login-box auth0-box before">
+        <img src="https://i.cloudup.com/StzWWrY34s.png" />
+        <h3>Auth0 Example</h3>
+        <p>Zero friction identity infrastructure, built for developers</p>
+        <button class="btn btn-primary btn-lg btn-login btn-block" ng-click="login()">SignIn</button>
+      </div>
+    </div>
+  </div>
+
+}
