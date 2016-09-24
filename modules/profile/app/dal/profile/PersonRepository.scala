@@ -1,8 +1,8 @@
-package dal
+package dal.profile
 
 import javax.inject.{Inject, Singleton}
 
-import models.Person
+import models.profile.Person
 import play.api.db.slick.DatabaseConfigProvider
 import play.api.libs.json.JsValue
 import slick.driver.JdbcProfile

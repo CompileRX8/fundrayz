@@ -28,7 +28,7 @@ class Callback @Inject()(ws: WSClient, cacheApi: CacheApi, config: Configuration
         getUser(accessToken).map { user =>
           // Cache the user and tokens into cache and session respectively
           cacheApi.set(idToken+ "profile", user)
-          Redirect(routes.User.index()).withSession(
+          Redirect("/").withSession(
             "idToken" -> idToken,
             "accessToken" -> accessToken
           )

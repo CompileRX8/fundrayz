@@ -3,7 +3,9 @@ package controllers.profile
 import javax.inject._
 
 import dal._
+import dal.profile.PersonRepository
 import models._
+import models.profile.Person
 import play.api.Logger
 import play.api.data.validation.ValidationError
 import play.api.i18n._

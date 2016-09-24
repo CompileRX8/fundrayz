@@ -32,7 +32,7 @@ lazy val postgresExtension = (project in file("modules/postgresExtension"))
   .enablePlugins(PlayScala)
   .dependsOn()
 
-lazy val userProfile = (project in file("modules/userProfile"))
+lazy val profile = (project in file("modules/profile"))
   .settings(commonSettings: _*)
   .enablePlugins(PlayScala)
   .dependsOn(postgresExtension)
@@ -46,8 +46,8 @@ lazy val security = (project in file("modules/security"))
 lazy val root = (project in file("."))
   .settings(commonSettings: _*)
   .enablePlugins(PlayScala)
-  .dependsOn(userProfile, postgresExtension, security)
-  .aggregate(userProfile, postgresExtension, security)
+  .dependsOn(profile, postgresExtension, security)
+  .aggregate(profile, postgresExtension, security)
 
 resolvers := ("Atlassian Releases" at "https://maven.atlassian.com/public/") +: resolvers.value
 

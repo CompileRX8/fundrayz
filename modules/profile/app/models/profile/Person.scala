@@ -1,7 +1,7 @@
-package models
+package models.profile
 
-import play.api.libs.json._
 import play.api.libs.functional.syntax._
+import play.api.libs.json._
 
 case class Person(id: Option[Long], name: String, content: JsValue)
 
