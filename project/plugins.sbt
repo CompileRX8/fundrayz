@@ -1,5 +1,8 @@
+// The Typesafe repository
+resolvers += "Typesafe Repository" at "https://repo.typesafe.com/typesafe/maven-releases/"
+
 // The Play plugin
-addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.5.5")
+addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.5.12")
 
 // web plugins
 

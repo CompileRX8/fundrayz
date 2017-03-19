@@ -7,17 +7,17 @@ lazy val commonSettings = Seq(
 )
 
 lazy val databaseDependencies = Seq(
-  "com.typesafe.play" %% "play-slick" % "2.0.0",
-  "com.typesafe.play" %% "play-slick-evolutions" % "2.0.0",
-  "org.postgresql" % "postgresql" % "9.4.1209",
-  "com.github.tminglei" %% "slick-pg" % "0.14.3",
-  "com.github.tminglei" %% "slick-pg_play-json" % "0.14.3"
+  "com.typesafe.play" %% "play-slick" % "2.0.2",
+  "com.typesafe.play" %% "play-slick-evolutions" % "2.0.2",
+  "org.postgresql" % "postgresql" % "9.4.1212",
+  "com.github.tminglei" %% "slick-pg" % "0.14.6",
+  "com.github.tminglei" %% "slick-pg_play-json" % "0.14.6"
 )
 
 lazy val webDependencies = Seq(
   filters,
-  "org.webjars" %% "webjars-play" % "2.5.0-3",
-  "org.webjars" % "angularjs" % "1.5.8",
+  "org.webjars" %% "webjars-play" % "2.5.0-4",
+  "org.webjars" % "angularjs" % "1.6.1",
   "org.webjars" % "bootstrap" % "3.3.7-1"
 )
 
