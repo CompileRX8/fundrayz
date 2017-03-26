@@ -1,7 +1,4 @@
-**/logs/
-**/target/
-**/.idea/
-**/.idea_modules/
-**/RUNNING_PID
-**/.sbtserver/
-**/project/project/
+node_modules/
+.idea/
+*.iml
+src/app/**/*.js*

@@ -1,1 +1,1 @@
-web: target/universal/stage/bin/fundrayz -Dhttp.port=${PORT} -Dconfig.resource=application.conf -Dplay.crypto.secret="fundrayzforthewin"
+web: node index.js

@@ -1,9 +1,0 @@
-# Routes
-# This file defines all application routes (Higher priority routes first)
-# ~~~~
-
-GET     /person/:id                 controllers.profile.PersonController.getPerson(id: Long)
-POST    /person                     controllers.profile.PersonController.addPerson
-PUT     /person/:id                 controllers.profile.PersonController.updatePerson(id: Long)
-DELETE  /person/:id                 controllers.profile.PersonController.deletePerson(id: Long)
-GET     /persons                    controllers.profile.PersonController.getPersons
